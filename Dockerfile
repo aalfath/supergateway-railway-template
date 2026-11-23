@@ -15,7 +15,7 @@ RUN npm install -g --no-audit --no-fund \
     && node --version && supergateway --version
 
 COPY default-config.json /app/default-config.json
-COPY start.sh /app/start.sh
+COPY start.sh limiter.mjs /app/
 RUN chmod 755 /app/start.sh
 
 ENV NODE_ENV=production \

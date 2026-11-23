@@ -24,6 +24,7 @@ else
 fi
 echo "Supergateway $(supergateway --version) on port $PORT, config $CONFIG"
 
-# stdin from /dev/null keeps the gateway running; it exits non-zero if it fails,
-# so Railway's ON_FAILURE restart policy brings it back.
-exec supergateway --config "$CONFIG" --port "$PORT" --logLevel "${SUPERGATEWAY_LOG_LEVEL:-info}" </dev/null
+# The limiter listens on $PORT, runs Supergateway on 127.0.0.1:8001 and queues
+# requests beyond what the memory limit allows. It exits non-zero if the gateway
+# stops, so Railway's ON_FAILURE restart policy brings it back.
+exec node /app/limiter.mjs --config "$CONFIG" --logLevel "${SUPERGATEWAY_LOG_LEVEL:-info}" </dev/null
