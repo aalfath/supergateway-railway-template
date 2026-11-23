@@ -1,0 +1,21 @@
+{
+  // Default servers of the Railway template. Replace this file by creating
+  // /data/supergateway.json on the volume, or set SUPERGATEWAY_CONFIG.
+  "outputTransport": "streamableHttp",
+  "healthEndpoint": ["/healthz"],
+  "mcpServers": {
+    "default": {
+      "path": "/",
+      "mcpServers": {
+        "memory": {
+          "command": "mcp-server-memory",
+          "env": { "MEMORY_FILE_PATH": "/data/memory/memory.jsonl" }
+        },
+        "files": {
+          "command": "mcp-server-filesystem",
+          "args": ["/data/files"]
+        }
+      }
+    }
+  }
+}
