@@ -22,6 +22,7 @@ One service, built from this repo's `Dockerfile`:
 | `SUPERGATEWAY_API_KEY` | `${{secret(32)}}` | Clients must send it as `Authorization: Bearer <key>` (or `X-API-Key`). Without it the service refuses to start. |
 | `SUPERGATEWAY_CONFIG` | *(unset)* | Optional. A full Supergateway config file, as JSON or base64, that replaces the default servers. |
 | `SUPERGATEWAY_LOG_LEVEL` | `info` | Optional: `debug`, `info` or `none`. |
+| `SUPERGATEWAY_MAX_CONCURRENT` | *(from memory)* | Optional: the most MCP requests served at once (see Memory). |
 
 ## Connect a client
 
@@ -58,7 +59,7 @@ Start from `default-config.json` and change the `mcpServers` entries. Each one i
 
 ## Memory
 
-With the two default servers, the service uses about 70 MB at rest and about 60 MB more for each request handled at the same time. It runs on Railway's 0.5 GB plan. Each extra stdio server you add needs its own memory, and Python or browser-based servers need much more.
+In stateless Streamable HTTP mode, Supergateway starts the MCP servers again for every request. With the two default servers, each request handled at the same time uses about 80 MB. The service itself uses about 90 MB at rest. A small front (`limiter.mjs`) listens on `$PORT` and runs Supergateway on `127.0.0.1:8001`. It reads the memory limit from the container and allows `(limit - 150 MB) / 80 MB` requests at once, which is 4 on Railway's 0.5 GB plan. Further requests wait their turn, so they don't run the service out of memory. You can change the cap with `SUPERGATEWAY_MAX_CONCURRENT`, or the per-request figure with `SUPERGATEWAY_MB_PER_REQUEST` (default `80`). If you add heavier servers (Python, browsers), raise the per-request figure or the service's memory. If Supergateway stops, the front exits with an error, so Railway restarts the service.
 
 ## Updates
 
