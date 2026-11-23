@@ -47,7 +47,8 @@ function forward(req, res, done) {
 }
 
 http.createServer((req, res) => {
-  if (req.url === '/healthz' || req.url.startsWith('/healthz?')) return forward(req, res, () => {});
+  // Only POSTs start MCP server processes; health checks and long-lived GET streams pass straight through.
+  if (req.method !== 'POST') return forward(req, res, () => {});
   const go = () => { active++; forward(req, res, release); };
   if (active < MAX) return go();
   if (waiting.length >= QUEUE) { res.writeHead(503, { 'Retry-After': '5' }); return res.end('busy'); }
